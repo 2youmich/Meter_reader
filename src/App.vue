@@ -1,31 +1,32 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-import {readImageText} from '@/lib/tesseract-testing'
-import {ref} from 'vue'
-
+import { readImageText } from '@/lib/tesseract-testing'
+import { ref } from 'vue'
 
 const textRef = ref('')
 
-readImageText().then((res) => {
+readImageText().then(res => {
   textRef.value = res
 })
-
-
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+    <img
+      alt="Vue logo"
+      class="logo"
+      src="@/assets/logo.svg"
+      width="125"
+      height="125"
+    />
 
     <div class="wrapper">
-      hello there
-
-      <pre>
-        {{ textRef }}
+      <pre
+        >{{ textRef }}
       </pre>
 
-      <img src="@/assets/images/1722397552068.jpg" alt="">
+      <img width="100px" src="@/assets/images/1722397552068.jpg" alt="" />
     </div>
   </header>
 
@@ -83,6 +84,8 @@ nav a:first-of-type {
     display: flex;
     place-items: flex-start;
     flex-wrap: wrap;
+
+    gap: 1.5rem;
   }
 
   nav {
