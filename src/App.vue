@@ -1,36 +1,55 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 import { readImageText } from '@/lib/tesseract-testing'
-import { ref } from 'vue'
+import imgSrc from '@/assets/images/1722397552068.jpg'
+
+import { ref, watch } from 'vue'
 
 const textRef = ref('')
+
+const imgSrcRef = ref(imgSrc)
+
+watch(imgSrcRef, async newVal => {
+  textRef.value = 'Loading...'
+  textRef.value = await readImageText(newVal)
+})
 
 readImageText().then(res => {
   textRef.value = res
 })
+
+async function replaceImage(imageData) {
+  const file = imageData.target.files[0]
+
+  if (file) {
+    const reader = new FileReader()
+
+    reader.onload = e => {
+      imgSrcRef.value = e.target.result
+    }
+
+    reader.readAsDataURL(file)
+  }
+}
 </script>
 
 <template>
   <header>
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="@/assets/logo.svg"
-      width="125"
-      height="125"
-    />
-
     <div class="wrapper">
       <pre
         >{{ textRef }}
       </pre>
 
-      <img width="100px" src="@/assets/images/1722397552068.jpg" alt="" />
+      <img width="100px" :src="imgSrcRef" alt="" />
+
+      <input
+        type="file"
+        name="image"
+        id="image"
+        accept="image/*"
+        @change="replaceImage"
+      />
     </div>
   </header>
-
-  <RouterView />
 </template>
 
 <style scoped>
@@ -64,6 +83,8 @@ nav a {
   padding: 0 1rem;
   border-left: 1px solid var(--color-border);
 }
+
+/* sff */
 
 nav a:first-of-type {
   border: 0;
