@@ -1,6 +1,6 @@
 # meter-reader
 
-This template should help get you started developing with Vue 3 in Vite.
+An OCR web app for reading meters. Built with Vue 3, Vite
 
 ## Recommended IDE Setup
 
