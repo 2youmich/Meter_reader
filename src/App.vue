@@ -119,8 +119,33 @@ export default {
         cropHeight
       );
 
+      // Convert the canvas to grayscale
+      this.convertToGrayscale(canvas);
+
       this.croppedImage = canvas.toDataURL('image/png');
     },
+    convertToGrayscale(canvas) {
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      // Loop through each pixel and convert it to grayscale
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];       // Red channel
+        const g = data[i + 1];   // Green channel
+        const b = data[i + 2];   // Blue channel
+
+        // Calculate the average to get the grayscale value
+        const avg = (r + g + b) / 3;
+
+        // Set each channel to the grayscale value
+        data[i] = data[i + 1] = data[i + 2] = avg;
+      }
+
+      // Put the modified image data back onto the canvas
+      ctx.putImageData(imageData, 0, 0);
+    },
+
     async extractText() {
       if (!this.croppedImage) return;
 
@@ -128,7 +153,14 @@ export default {
         const { data: { text } } = await Tesseract.recognize(
           this.croppedImage,
           'eng',
-          { logger: (m) => console.log(m) } // Optional: Logs progress
+          { logger: (m) => console.log(m),
+            // OCR Engine Mode: LSTM only, best for recognition
+            oem: Tesseract.OEM.LSTM_ONLY,
+            tessedit_char_whitelist: '0123456789', // Restrict to digits only
+            tessedit_char_blacklist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+            tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
+          } 
+          // Optional: Logs progress
         );
         this.extractedText = text;
       } catch (error) {
