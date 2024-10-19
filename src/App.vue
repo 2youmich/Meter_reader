@@ -88,7 +88,7 @@ export default {
     endCrop() {
       this.isCropping = false;
     },
-    cropImage() {
+    async cropImage() {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const image = this.$refs.image;
@@ -122,8 +122,15 @@ export default {
       // Convert the canvas to grayscale
       this.convertToGrayscale(canvas);
 
+      // Invert colors before processing
+      this.invertColors(canvas);
+
+      // Extract text using Tesseract
+      await this.extractText(canvas);
+
       this.croppedImage = canvas.toDataURL('image/png');
     },
+
     convertToGrayscale(canvas) {
       const ctx = canvas.getContext('2d');
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -143,6 +150,23 @@ export default {
       }
 
       // Put the modified image data back onto the canvas
+      ctx.putImageData(imageData, 0, 0);
+    },
+
+    invertColors(canvas) {
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        // Invert each color channel
+        data[i] = 255 - data[i];     // Red
+        data[i + 1] = 255 - data[i + 1]; // Green
+        data[i + 2] = 255 - data[i + 2]; // Blue
+        // Alpha channel remains unchanged (data[i + 3])
+      }
+
+      // Put the inverted image data back to the canvas
       ctx.putImageData(imageData, 0, 0);
     },
 
