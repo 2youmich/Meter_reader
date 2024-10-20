@@ -184,7 +184,6 @@ export default {
             tessedit_char_blacklist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
             tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
           } 
-          // Optional: Logs progress
         );
         this.extractedText = text;
       } catch (error) {
