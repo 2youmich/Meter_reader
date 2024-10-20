@@ -42,6 +42,7 @@
 
 <script>
 import Tesseract from 'tesseract.js';
+import { createWorker } from 'tesseract.js';
 
 export default {
   data() {
@@ -56,6 +57,7 @@ export default {
     };
   },
   methods: {
+
     onImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -173,21 +175,18 @@ export default {
     async extractText() {
       if (!this.croppedImage) return;
 
+      const worker = await createWorker('my_custom_model', { langPath: './tessdata' });
+
       try {
-        const { data: { text } } = await Tesseract.recognize(
-          this.croppedImage,
-          'eng',
-          { logger: (m) => console.log(m),
-            // OCR Engine Mode: LSTM only, best for recognition
-            oem: Tesseract.OEM.LSTM_ONLY,
-            tessedit_char_whitelist: '0123456789', // Restrict to digits only
-            tessedit_char_blacklist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-            tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,
-          } 
-        );
+        // Recognize text from the cropped image
+        const { data: { text } } = await worker.recognize(this.croppedImage);
         this.extractedText = text;
       } catch (error) {
-        console.error('Error extracting text:', error);
+        console.warn('An issue occurred during OCR:', error.message);  
+      } finally {
+        if (worker) {
+          await worker.terminate();
+        }  
       }
     },
     resetState() {
